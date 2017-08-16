@@ -1,0 +1,70 @@
+*{
+	margin: 0px;
+	padding: 0px;
+}
+
+html, body{
+	width: 100vw;
+	height: 100vh;
+	cursor: url('cursors/Arrow.cur'), auto;	
+}
+
+span{
+	font-family: 'Roboto';
+}
+
+#desktop{
+	width: 100vw;
+	height: 100vh;
+	background-image: url('bg.jpg');
+	background-size: cover;
+}
+
+.folder{
+	position: relative;
+	z-index: 1;
+    display: inline-flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin: 3px;
+    width: 64px;
+    height: 80px;
+    background-image: url(folder.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.folder span.name{
+	font-weight: 400;
+	font-size: 16px;
+}
+
+.menuOnRightClick{
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    left: 0px;
+    width: 150px;
+    height: auto;
+    border-radius: 5px;
+    border: 1px solid #f5f5f5;
+    background-color: #ffffff;
+    box-shadow: 0 0 20px 2px #5f5f5f;
+}
+
+.menuOnRightClick span.button{
+    display: block;
+    font-weight: 400;
+    font-size: 16px;
+    padding: 5px;
+    border-radius: 5px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.menuOnRightClick span.button:hover{
+	background-color: #EBEBEB
+}
+
+.menuOnRightClick span.button:last-child{
+	border-bottom: none;
+}
