@@ -7,22 +7,80 @@ const desktopIconMenuOnRightClick = ['Open', 'Delete', 'Rename'];
 
 let folders = [];
 let icons = [];
+
 let menuOnRightClick = null;
 
 let lockIcon = null;
+let move = false;
 
-function newFolder(x, y){
+let setNameVariable = null;
 
-	folders.push(new Folder(x, y));
+function newIcon(type, x, y){
+
+	if(type === 'folder'){
+
+		new Icon(type, x, y);
+
+	}
 
 }
+
+function lookToElement(id){
+
+	// event.preventDefault();
+	if(event.keyCode === 13){
+
+		let elem = document.getElementById(id);
+
+		if(setNameVariable != null){
+
+			let myEvent = new CustomEvent("onSetName", {
+
+				detail: {
+
+					name: setNameVariable.elem.value
+
+				}
+
+			});
+
+			setNameVariable.elemEvent.dispatchEvent(myEvent);
+			setNameVariable = null;
+
+		}
+
+	}
+
+}
+
+function setName(obj){
+
+	let nameInp = document.createElement('textarea');
+	let child = obj.elem.querySelector('.name');
+
+	if(child != null)
+		obj.elem.removeChild(child);
+
+	nameInp.className = 'nameInp';
+	nameInp.setAttribute('rows', `1`);
+	nameInp.setAttribute('value', `icon`);
+	nameInp.setAttribute('onkeydown', `lookToElement('${obj.elem.id}')`);
+	obj.elem.appendChild(nameInp);
+	nameInp.focus();
+	setNameVariable = {};
+	setNameVariable.elemEvent = obj.elem;
+	setNameVariable.elem = nameInp;
+	setNameVariable.event = true;
+
+}
+
 
 function MenuOnRightClickButtonFunction(nameF){
 
 	switch(nameF.toLowerCase()){
 
 		case 'new folder':
-			newFolder(menuOnRightClick.x, menuOnRightClick.y);
+			newIcon('folder', menuOnRightClick.x, menuOnRightClick.y);
 
 	}
 
@@ -41,6 +99,24 @@ function allIconsActiveFalse(){
 			obj.obj.setAttribute('data-active', 'false');
 
 		}
+
+	}
+
+	if(setNameVariable != null){
+
+		let myEvent = new CustomEvent("onSetName", {
+
+			detail: {
+
+				name: setNameVariable.elem.value
+
+			}
+
+		});
+
+		setNameVariable.elemEvent.dispatchEvent(myEvent);
+
+		setNameVariable = null;
 
 	}
 
@@ -73,40 +149,115 @@ function menuOnRightClickClose(id = null){
 
 function lockIconToMouse(id){
 
+	if(setNameVariable != null){
+
+		let myEvent = new CustomEvent("onSetName", {
+
+			detail: {
+
+				name: setNameVariable.elem.value
+
+			}
+
+		});
+
+		setNameVariable.elemEvent.dispatchEvent(myEvent);
+
+		setNameVariable = null;
+
+	}
+
 	lockIcon = icons.find(obj => obj.id === id);
 	lockIcon.coords = lockIcon.obj.getBoundingClientRect();
-	lockIcon.coords.x = event.pageX - lockIcon.coords.left;
-	lockIcon.coords.y = event.pageY - lockIcon.coords.top;
+	lockIcon.coords.x = event.clientX - lockIcon.coords.left;
+	lockIcon.coords.y = event.clientY - lockIcon.coords.top;
+	lockIcon.obj.style.zIndex = '100';
 	allIconsActiveFalse();
-	lockIcon.active('true');
-	// lockIcon.style.zIndex = '100';
+	lockIcon.active('true');	
 
 }
 
 function unlockIconToMouse(){
 
+	lockIcon.posX = event.clientX - lockIcon.coords.x;
+	lockIcon.posY = event.clientY - lockIcon.coords.y;
+
+	if(lockIcon.posX - 1 < 0){
+
+		lockIcon.posX = 0;
+		lockIcon.obj.style.left = `${lockIcon.posX}px`;
+
+	}else if(lockIcon.posX + 75 > document.documentElement.clientWidth){
+
+		lockIcon.posX = document.documentElement.clientWidth - 80;
+		lockIcon.obj.style.left = `${lockIcon.posX}px`;
+
+	}
+
+	if(lockIcon.posY - 1 < 0){
+
+		lockIcon.posY = 0;
+		lockIcon.obj.style.top = `${lockIcon.posY}px`;
+
+	}else if(lockIcon.posY + 84 > document.documentElement.clientHeight){
+
+		lockIcon.posY = document.documentElement.clientHeight - 91;
+		lockIcon.obj.style.top = `${lockIcon.posY}px`;
+
+	}
+
 	delete lockIcon.coords;
+	lockIcon.obj.style.zIndex = '2';
 	lockIcon = null;
+	move = false;
 
 }
 
-function moveLockIcon(e){
+function moveLockIcon(){
 
 	if(lockIcon !== null){
 
-		lockIcon.obj.style.left = `${event.pageX - lockIcon.coords.x}px`;
-		lockIcon.obj.style.top = `${event.pageY - lockIcon.coords.y}px`;
+
+		if(lockIcon.coords.x + 5 <= event.clientX - lockIcon.coords.left){
+
+			move = true;
+
+		}else if(lockIcon.coords.x - 5 >= event.clientX - lockIcon.coords.left){
+
+			move = true;
+			
+		}
+
+		if(move === true){
+
+			lockIcon.obj.style.left = `${event.clientX - lockIcon.coords.x}px`;
+			lockIcon.obj.style.top = `${event.clientY - lockIcon.coords.y}px`;
+
+		}
 
 	}
 
 }
 
+function setDropAndDrag(elem){
 
-class Folder{
+	elem.setAttribute('onmousedown', `lockIconToMouse('i${icons.length}')`);
+	elem.setAttribute('onmouseup', `unlockIconToMouse()`);
+	elem.setAttribute('ondragstart', `return false`);
+	elem.setAttribute('data-active', 'true');
 
-	constructor(xI ,yI){
+}
+
+
+class Icon{
+
+	constructor(type, xI, yI){
 
 		menuOnRightClickClose();
+
+		this.type = type;
+		this.elem = document.createElement('div');
+
 		if(xI - 37 < 0)
 			this.x = 0
 		else if(xI + 37 > document.documentElement.clientWidth)
@@ -121,61 +272,75 @@ class Folder{
 		else
 			this.y = yI - 42
 
-
-
-		// this.name = name;
-		this.elem = document.createElement('div');
-		this.elem.className = 'folder';
 		this.elem.style.left = `${this.x}px`;
 		this.elem.style.top = `${this.y}px`;
-		this.elem.id = `f${icons.length}`;
-		this.elem.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'f${icons.length}')`);
-		this.elem.setAttribute('onclick', `menuOnRightClickClose('f${icons.length}')`);
-		this.elem.setAttribute('onmousedown', `lockIconToMouse('f${icons.length}')`);
-		this.elem.setAttribute('onmouseup', `unlockIconToMouse()`);
-		// this.elem.setAttribute('onmousemove', `moveLockIcon()`);
-		this.elem.setAttribute('ondragstart', `return false`);
-		this.elem.setAttribute('data-active', 'false');
-		this.elem.name = document.createElement('textarea');
-		this.elem.name.className = 'nameInp';
+
+		this.elem.id = `i${icons.length}`;
+		this.elem.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'i${icons.length}')`);
+		this.elem.setAttribute('onclick', `menuOnRightClickClose('i${icons.length}')`);
 		this.elem.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-		this.elem.name.style.resize = 'none';
-		this.elem.name.setAttribute('rows', `1`);
 		this.activeState = true;
-		this.elem.setAttribute('data-active', 'true');
-		// this.elem.name.innerHTML = this.name;
-		this.elem.appendChild(this.elem.name);
+		setDropAndDrag(this.elem);
+
+		if(type === 'folder'){
+
+			this.elem.className = 'folder';
+
+		}
+
 		document.body.appendChild(this.elem);
+		setName(this);
 
-		icons.push({id: `f${icons.length}`, type: 'folder', name: this.name, obj: this.elem, posX: this.x, posY: this.y, childIcons: [], activeState: this.activeState, active: function(state){
+		let THIS = this;
+		this.elem.addEventListener("onSetName", function(data) {
 
-			allIconsActiveFalse();
+			THIS.name = data.detail.name;
 
-			if(state === 'true'){
+			let nameSpn = document.createElement('span');
+			let child = THIS.elem.querySelector('.nameInp');
 
-				this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-				this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-				this.obj.children[0].style.color = 'white';
-				this.activeState = true;
-				this.obj.setAttribute('data-active', 'true');
+			if(child != null)
+				THIS.elem.removeChild(child);
 
-			}else{
+			nameSpn.className = 'name';
+			nameSpn.innerHTML = THIS.name;
+			THIS.elem.appendChild(nameSpn);
 
-				this.obj.style.backgroundColor = 'rgba(0, 0, 0, 00)';
-				this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-				this.obj.children[0].style.color = 'black';
-				this.activeState = false;
-				this.obj.setAttribute('data-active', 'false');
+			icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.elem, posX: THIS.x, posY: THIS.y, childIcons: [], activeState: THIS.activeState, active: function(state){
 
-			}
+				// allIconsActiveFalse();
 
-		}});
+				if(state === 'true'){
 
-		delete this.activeState;
+					THIS.elem.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+					THIS.elem.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+					THIS.elem.children[0].style.color = 'white';
+					THIS.activeState = true;
+					THIS.elem.setAttribute('data-active', 'true');
 
+				}else{
+
+					THIS.elem.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+					THIS.elem.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+					THIS.elem.children[0].style.color = 'black';
+					THIS.activeState = false;
+					THIS.elem.setAttribute('data-active', 'false');
+
+				}
+
+			}});
+
+			icons[icons.length - 1].active('false');
+
+		})	
+		
 	}
 
 }
+
+
+
+
 
 class MenuOnRightClick{
 

@@ -33,6 +33,7 @@ span, input, textarea, button{
 
 .folder{
     position: absolute;
+    z-index: 2;
     top: 0px;
     left: 0px;
     display: inline-flex;
@@ -66,6 +67,7 @@ span, input, textarea, button{
 	font-size: 12px;
 	margin-bottom: 5px;
 	resize: none;
+    text-align: center;
 }
 
 .menuOnRightClick{
