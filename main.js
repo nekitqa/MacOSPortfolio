@@ -17,11 +17,7 @@ let setNameVariable = null;
 
 function newIcon(type, x, y){
 
-	if(type === 'folder'){
-
-		new Icon(type, x, y);
-
-	}
+	new Icon(type, x, y);
 
 }
 
@@ -63,7 +59,7 @@ function setName(obj){
 
 	nameInp.className = 'nameInp';
 	nameInp.setAttribute('rows', `1`);
-	nameInp.setAttribute('value', `icon`);
+	nameInp.value = obj.name;
 	nameInp.setAttribute('onkeydown', `lookToElement('${obj.elem.id}')`);
 	obj.elem.appendChild(nameInp);
 	nameInp.focus();
@@ -256,6 +252,7 @@ class Icon{
 		menuOnRightClickClose();
 
 		this.type = type;
+		this.name = 'icon';
 		this.elem = document.createElement('div');
 
 		if(xI - 37 < 0)
@@ -294,7 +291,8 @@ class Icon{
 		let THIS = this;
 		this.elem.addEventListener("onSetName", function(data) {
 
-			THIS.name = data.detail.name;
+			if(data.detail.name.replace(' ', '') != '')
+				THIS.name = data.detail.name;
 
 			let nameSpn = document.createElement('span');
 			let child = THIS.elem.querySelector('.nameInp');
@@ -312,25 +310,24 @@ class Icon{
 
 				if(state === 'true'){
 
-					THIS.elem.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-					THIS.elem.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-					THIS.elem.children[0].style.color = 'white';
-					THIS.activeState = true;
-					THIS.elem.setAttribute('data-active', 'true');
+					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+					this.obj.children[0].style.color = 'white';
+					this.activeState = true;
+					this.obj.setAttribute('data-active', 'true');
 
 				}else{
 
-					THIS.elem.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-					THIS.elem.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-					THIS.elem.children[0].style.color = 'black';
-					THIS.activeState = false;
-					THIS.elem.setAttribute('data-active', 'false');
+					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+					this.obj.children[0].style.color = 'black';
+					this.activeState = false;
+					this.obj.setAttribute('data-active', 'false');
 
 				}
 
 			}});
 
-			icons[icons.length - 1].active('false');
 
 		})	
 		
