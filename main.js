@@ -14,6 +14,7 @@ let lockIcon = null;
 let move = false;
 
 let setNameVariable = null;
+let rename = false;
 
 function newIcon(type, x, y){
 
@@ -51,32 +52,60 @@ function lookToElement(id){
 
 function setName(obj){
 
-	let nameInp = document.createElement('textarea');
-	let child = obj.elem.querySelector('.name');
+	if(obj !== undefined){
 
-	if(child != null)
-		obj.elem.removeChild(child);
+		let nameInp = document.createElement('textarea');
+		let child = obj.obj.children[0];
+		if(child !== undefined)
+			if(child.className === 'name')
+				obj.obj.removeChild(child);
 
-	nameInp.className = 'nameInp';
-	nameInp.setAttribute('rows', `1`);
-	nameInp.value = obj.name;
-	nameInp.setAttribute('onkeydown', `lookToElement('${obj.elem.id}')`);
-	obj.elem.appendChild(nameInp);
-	nameInp.focus();
-	setNameVariable = {};
-	setNameVariable.elemEvent = obj.elem;
-	setNameVariable.elem = nameInp;
-	setNameVariable.event = true;
+		nameInp.className = 'nameInp';
+		nameInp.setAttribute('rows', `1`);
+		nameInp.value = obj.name;
+		nameInp.setAttribute('onkeydown', `lookToElement('${obj.obj.id}')`);
+		obj.obj.appendChild(nameInp);
+		nameInp.focus();
+		setNameVariable = {};
+		setNameVariable.id = obj.id;
+		setNameVariable.elemEvent = obj.obj;
+		setNameVariable.elem = nameInp;
+		setNameVariable.event = true;
+
+	}
 
 }
 
 
-function MenuOnRightClickButtonFunction(nameF){
+function MenuOnRightClickButtonFunction(nameF, id){
 
-	switch(nameF.toLowerCase()){
+	// switch(nameF.toLowerCase()){
 
-		case 'new folder':
-			newIcon('folder', menuOnRightClick.x, menuOnRightClick.y);
+	// 	case 'new folder':
+	// 		newIcon('folder', menuOnRightClick.x, menuOnRightClick.y);
+
+	// 	case 'rename':
+	// 		console.log(new Error('what?'));
+	// 		rename = true;
+	// 		setName(icons.find(obj => obj.id === id));
+
+	// }
+	let strLowerCase = nameF.toLowerCase();
+	if(strLowerCase === 'new folder'){
+
+		newIcon('folder', menuOnRightClick.x, menuOnRightClick.y);
+
+	}else if(strLowerCase === 'rename'){
+
+		console.log(new Error('what?'));
+		rename = true;
+		setName(icons.find(obj => obj.id === id));
+
+	}
+	
+	if(menuOnRightClick != null){
+
+		menuOnRightClick.close();
 
 	}
 
@@ -168,8 +197,7 @@ function lockIconToMouse(id){
 	lockIcon.coords.x = event.clientX - lockIcon.coords.left;
 	lockIcon.coords.y = event.clientY - lockIcon.coords.top;
 	lockIcon.obj.style.zIndex = '100';
-	allIconsActiveFalse();
-	lockIcon.active('true');	
+	menuOnRightClickClose(id);
 
 }
 
@@ -253,7 +281,7 @@ class Icon{
 
 		this.type = type;
 		this.name = 'icon';
-		this.elem = document.createElement('div');
+		this.obj = document.createElement('div');
 
 		if(xI - 37 < 0)
 			this.x = 0
@@ -269,64 +297,110 @@ class Icon{
 		else
 			this.y = yI - 42
 
-		this.elem.style.left = `${this.x}px`;
-		this.elem.style.top = `${this.y}px`;
+		this.obj.style.left = `${this.x}px`;
+		this.obj.style.top = `${this.y}px`;
 
-		this.elem.id = `i${icons.length}`;
-		this.elem.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'i${icons.length}')`);
-		this.elem.setAttribute('onclick', `menuOnRightClickClose('i${icons.length}')`);
-		this.elem.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+		this.obj.id = `i${icons.length}`;
+		this.obj.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'i${icons.length}')`);
+		this.obj.setAttribute('onclick', `menuOnRightClickClose('i${icons.length}')`);
+		this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
 		this.activeState = true;
-		setDropAndDrag(this.elem);
+		setDropAndDrag(this.obj);
 
 		if(type === 'folder'){
 
-			this.elem.className = 'folder';
+			this.obj.className = 'folder';
 
 		}
 
-		document.body.appendChild(this.elem);
+		document.body.appendChild(this.obj);
 		setName(this);
 
 		let THIS = this;
-		this.elem.addEventListener("onSetName", function(data) {
+		this.obj.addEventListener("onSetName", function(data) {
 
-			if(data.detail.name.replace(' ', '') != '')
-				THIS.name = data.detail.name;
+			if(rename === false){
 
-			let nameSpn = document.createElement('span');
-			let child = THIS.elem.querySelector('.nameInp');
+				if(data.detail.name.replace(' ', '') != '')
+					THIS.name = data.detail.name;
 
-			if(child != null)
-				THIS.elem.removeChild(child);
+				let child = THIS.obj.children[0];
+				let nameSpn;
+				if(child !== undefined){
 
-			nameSpn.className = 'name';
-			nameSpn.innerHTML = THIS.name;
-			THIS.elem.appendChild(nameSpn);
+					if(child.className === 'nameInp'){
 
-			icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.elem, posX: THIS.x, posY: THIS.y, childIcons: [], activeState: THIS.activeState, active: function(state){
+						THIS.obj.removeChild(child);
+						nameSpn = document.createElement('span');
+						nameSpn.className = 'name';
+						nameSpn.innerHTML = THIS.name;
+						THIS.obj.appendChild(nameSpn);
+					
+					}else{
 
-				// allIconsActiveFalse();
+						nameSpn = child;
+						child.innerHTML = THIS.name;
 
-				if(state === 'true'){
-
-					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-					this.obj.children[0].style.color = 'white';
-					this.activeState = true;
-					this.obj.setAttribute('data-active', 'true');
-
-				}else{
-
-					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-					this.obj.children[0].style.color = 'black';
-					this.activeState = false;
-					this.obj.setAttribute('data-active', 'false');
+					}
 
 				}
 
-			}});
+
+				icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.obj, posX: THIS.x, posY: THIS.y, childIcons: [], activeState: THIS.activeState, active: function(state){
+
+					// allIconsActiveFalse();
+
+					if(state === 'true'){
+
+						this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+						this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+						this.obj.children[0].style.color = 'white';
+						this.activeState = true;
+						this.obj.setAttribute('data-active', 'true');
+
+					}else{
+
+						this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+						this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+						this.obj.children[0].style.color = 'black';
+						this.activeState = false;
+						this.obj.setAttribute('data-active', 'false');
+
+					}
+
+				}});
+
+			}else if(rename === true){
+
+				let thisIconRename = icons.find(obj => obj.id === setNameVariable.id);
+				
+				if(data.detail.name.replace(' ', '') != '')
+					thisIconRename.name = data.detail.name;
+				else
+					thisIconRename.name = 'icon';
+
+				let child = thisIconRename.obj.children[0];
+				let nameSpn;
+				if(child !== undefined){
+
+					if(child.className === 'nameInp'){
+
+						thisIconRename.obj.removeChild(child);
+						nameSpn = document.createElement('span');
+						nameSpn.className = 'name';
+						nameSpn.innerHTML = thisIconRename.name;
+						thisIconRename.obj.appendChild(nameSpn);
+					
+					}else{
+
+						nameSpn = child;
+						child.innerHTML = THIS.name;
+
+					}
+
+				}
+				
+			}
 
 
 		})	
@@ -379,7 +453,7 @@ class MenuOnRightClick{
 
 				let element = document.createElement('span');
 				element.className = 'button';
-				element.setAttribute('onclick', `MenuOnRightClickButtonFunction("${obj}")`);
+				element.setAttribute('onclick', `MenuOnRightClickButtonFunction("${obj}", "${id}")`);
 				element.innerHTML = obj;
 				this.elem.appendChild(element);
 				this.elem.height += 29;
