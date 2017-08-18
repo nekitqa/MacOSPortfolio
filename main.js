@@ -16,33 +16,71 @@ let move = false;
 let setNameVariable = null;
 let rename = false;
 
+let timeout;
+
+function openWindow(id){
+
+	new Window(icons.find(obj => obj.id === id));
+
+}
+
 function newIcon(type, x, y){
 
 	new Icon(type, x, y);
 
 }
 
-function lookToElement(id){
+function lookToElement(type, id){
 
-	// event.preventDefault();
-	if(event.keyCode === 13){
+	let typeLowerCase = type.toLowerCase();
 
-		let elem = document.getElementById(id);
+	if(typeLowerCase === 'setname'){
 
-		if(setNameVariable != null){
+		if(event.keyCode === 13){
 
-			let myEvent = new CustomEvent("onSetName", {
+			let elem = document.getElementById(id);
 
-				detail: {
+			if(setNameVariable != null){
 
-					name: setNameVariable.elem.value
+				let myEvent = new CustomEvent("onSetName", {
 
-				}
+					detail: {
 
-			});
+						name: setNameVariable.obj.value
 
-			setNameVariable.elemEvent.dispatchEvent(myEvent);
-			setNameVariable = null;
+					}
+
+				});
+
+				setNameVariable.elemEvent.dispatchEvent(myEvent);
+				setNameVariable = null;
+
+			}
+
+		}
+
+	}else if(typeLowerCase === 'rename'){
+
+		if(event.keyCode === 13){
+
+			let elem = document.getElementById(id);
+
+			if(setNameVariable != null){
+
+				let myEvent = new CustomEvent("onRename", {
+
+					detail: {
+
+						name: setNameVariable.obj.value
+
+					}
+
+				});
+
+				setNameVariable.elemEvent.dispatchEvent(myEvent);
+				setNameVariable = null;
+
+			}
 
 		}
 
@@ -50,46 +88,8 @@ function lookToElement(id){
 
 }
 
-function setName(obj){
-
-	if(obj !== undefined){
-
-		let nameInp = document.createElement('textarea');
-		let child = obj.obj.children[0];
-		if(child !== undefined)
-			if(child.className === 'name')
-				obj.obj.removeChild(child);
-
-		nameInp.className = 'nameInp';
-		nameInp.setAttribute('rows', `1`);
-		nameInp.value = obj.name;
-		nameInp.setAttribute('onkeydown', `lookToElement('${obj.obj.id}')`);
-		obj.obj.appendChild(nameInp);
-		nameInp.focus();
-		setNameVariable = {};
-		setNameVariable.id = obj.id;
-		setNameVariable.elemEvent = obj.obj;
-		setNameVariable.elem = nameInp;
-		setNameVariable.event = true;
-
-	}
-
-}
-
-
 function MenuOnRightClickButtonFunction(nameF, id){
 
-	// switch(nameF.toLowerCase()){
-
-	// 	case 'new folder':
-	// 		newIcon('folder', menuOnRightClick.x, menuOnRightClick.y);
-
-	// 	case 'rename':
-	// 		console.log(new Error('what?'));
-	// 		rename = true;
-	// 		setName(icons.find(obj => obj.id === id));
-
-	// }
 	let strLowerCase = nameF.toLowerCase();
 	if(strLowerCase === 'new folder'){
 
@@ -97,9 +97,7 @@ function MenuOnRightClickButtonFunction(nameF, id){
 
 	}else if(strLowerCase === 'rename'){
 
-		console.log(new Error('what?'));
-		rename = true;
-		setName(icons.find(obj => obj.id === id));
+		icons.find(obj => obj.id === id).rename();;
 
 	}
 	
@@ -129,15 +127,33 @@ function allIconsActiveFalse(){
 
 	if(setNameVariable != null){
 
-		let myEvent = new CustomEvent("onSetName", {
+		let myEvent;
 
-			detail: {
+		if(setNameVariable.type === 'setname'){
 
-				name: setNameVariable.elem.value
+			myEvent = new CustomEvent("onSetName", {
 
-			}
+				detail: {
 
-		});
+					name: setNameVariable.obj.value
+
+				}
+
+			});
+
+		}else if(setNameVariable.type === 'rename'){
+
+			myEvent = new CustomEvent("onRename", {
+
+				detail: {
+
+					name: setNameVariable.obj.value
+
+				}
+
+			});
+
+		}
 
 		setNameVariable.elemEvent.dispatchEvent(myEvent);
 
@@ -174,17 +190,35 @@ function menuOnRightClickClose(id = null){
 
 function lockIconToMouse(id){
 
+	let myEvent;
+
 	if(setNameVariable != null){
 
-		let myEvent = new CustomEvent("onSetName", {
+		if(setNameVariable.type === 'setname'){
 
-			detail: {
+			myEvent = new CustomEvent("onSetName", {
 
-				name: setNameVariable.elem.value
+				detail: {
 
-			}
+					name: setNameVariable.obj.value
 
-		});
+				}
+
+			});
+
+		}else if(setNameVariable.type === 'rename'){
+
+			myEvent = new CustomEvent("onRename", {
+
+				detail: {
+
+					name: setNameVariable.obj.value
+
+				}
+
+			});
+
+		}
 
 		setNameVariable.elemEvent.dispatchEvent(myEvent);
 
@@ -205,6 +239,8 @@ function unlockIconToMouse(){
 
 	lockIcon.posX = event.clientX - lockIcon.coords.x;
 	lockIcon.posY = event.clientY - lockIcon.coords.y;
+
+
 
 	if(lockIcon.posX - 1 < 0){
 
@@ -263,15 +299,22 @@ function moveLockIcon(){
 
 }
 
-function setDropAndDrag(elem){
+function setDropAndDrag(type, elem){
 
-	elem.setAttribute('onmousedown', `lockIconToMouse('i${icons.length}')`);
-	elem.setAttribute('onmouseup', `unlockIconToMouse()`);
-	elem.setAttribute('ondragstart', `return false`);
-	elem.setAttribute('data-active', 'true');
+	if(type === 'icon'){
+
+		elem.setAttribute('onmousedown', `lockIconToMouse('i${icons.length}')`);
+		elem.setAttribute('onmouseup', `unlockIconToMouse()`);
+		elem.setAttribute('ondragstart', `return false`);
+		elem.setAttribute('data-active', 'true');
+
+	}else if(type === 'window'){
+
+
+
+	}
 
 }
-
 
 class Icon{
 
@@ -282,6 +325,13 @@ class Icon{
 		this.type = type;
 		this.name = 'icon';
 		this.obj = document.createElement('div');
+		this.obj.id = `i${icons.length}`;
+		this.obj.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'i${icons.length}')`);
+		this.obj.setAttribute('onclick', `menuOnRightClickClose('i${icons.length}')`);
+		this.obj.setAttribute('ondblclick', `openWindow('i${icons.length}')`);
+		this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+		this.activeState = true;
+
 
 		if(xI - 37 < 0)
 			this.x = 0
@@ -300,12 +350,7 @@ class Icon{
 		this.obj.style.left = `${this.x}px`;
 		this.obj.style.top = `${this.y}px`;
 
-		this.obj.id = `i${icons.length}`;
-		this.obj.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'i${icons.length}')`);
-		this.obj.setAttribute('onclick', `menuOnRightClickClose('i${icons.length}')`);
-		this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-		this.activeState = true;
-		setDropAndDrag(this.obj);
+		setDropAndDrag('icon', this.obj);
 
 		if(type === 'folder'){
 
@@ -314,104 +359,148 @@ class Icon{
 		}
 
 		document.body.appendChild(this.obj);
-		setName(this);
+		this.setName();
 
 		let THIS = this;
-		this.obj.addEventListener("onSetName", function(data) {
+		this.obj.addEventListener("onSetName", function(data){
 
-			if(rename === false){
+			if(data.detail.name.replace(' ', '') != '')
+				THIS.name = data.detail.name;
+			else
+				THIS.name = 'icon';
 
-				if(data.detail.name.replace(' ', '') != '')
-					THIS.name = data.detail.name;
+			let child = THIS.obj.children[0];
+			let nameSpn;
+			if(child !== undefined){
 
-				let child = THIS.obj.children[0];
-				let nameSpn;
-				if(child !== undefined){
+				if(child.className === 'nameInp'){
 
-					if(child.className === 'nameInp'){
+					THIS.obj.removeChild(child);
+					nameSpn = document.createElement('span');
+					nameSpn.className = 'name';
+					nameSpn.innerHTML = THIS.name;
+					THIS.obj.appendChild(nameSpn);
+				
+				}else{
 
-						THIS.obj.removeChild(child);
-						nameSpn = document.createElement('span');
-						nameSpn.className = 'name';
-						nameSpn.innerHTML = THIS.name;
-						THIS.obj.appendChild(nameSpn);
-					
-					}else{
-
-						nameSpn = child;
-						child.innerHTML = THIS.name;
-
-					}
+					nameSpn = child;
+					child.innerHTML = THIS.name;
 
 				}
 
-
-				icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.obj, posX: THIS.x, posY: THIS.y, childIcons: [], activeState: THIS.activeState, active: function(state){
-
-					// allIconsActiveFalse();
-
-					if(state === 'true'){
-
-						this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-						this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-						this.obj.children[0].style.color = 'white';
-						this.activeState = true;
-						this.obj.setAttribute('data-active', 'true');
-
-					}else{
-
-						this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-						this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-						this.obj.children[0].style.color = 'black';
-						this.activeState = false;
-						this.obj.setAttribute('data-active', 'false');
-
-					}
-
-				}});
-
-			}else if(rename === true){
-
-				let thisIconRename = icons.find(obj => obj.id === setNameVariable.id);
-				
-				if(data.detail.name.replace(' ', '') != '')
-					thisIconRename.name = data.detail.name;
-				else
-					thisIconRename.name = 'icon';
-
-				let child = thisIconRename.obj.children[0];
-				let nameSpn;
-				if(child !== undefined){
-
-					if(child.className === 'nameInp'){
-
-						thisIconRename.obj.removeChild(child);
-						nameSpn = document.createElement('span');
-						nameSpn.className = 'name';
-						nameSpn.innerHTML = thisIconRename.name;
-						thisIconRename.obj.appendChild(nameSpn);
-					
-					}else{
-
-						nameSpn = child;
-						child.innerHTML = THIS.name;
-
-					}
-
-				}
-				
 			}
 
+			let parent;
+			if(THIS.obj.parentElement.className !== undefined && THIS.obj.parentElement.className !== '')
+				parent = `${THIS.obj.parentElement.tagName}.${THIS.obj.parentElement.className}`;
+			else
+				parent = `${THIS.obj.parentElement.tagName}`;
 
-		})	
+			icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.obj, posX: THIS.x, posY: THIS.y, parent: parent, childIcons: [], activeState: THIS.activeState, active: function(state){
+
+				if(state === 'true'){
+
+					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+					this.obj.children[0].style.color = 'white';
+					this.activeState = true;
+					this.obj.setAttribute('data-active', 'true');
+
+				}else{
+
+					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+					this.obj.children[0].style.color = 'black';
+					this.activeState = false;
+					this.obj.setAttribute('data-active', 'false');
+
+				}
+
+			}, rename: function(){
+
+				let THIS = this;
+				this.obj.addEventListener("onRename", function(data){
+
+					if(data.detail.name.replace(' ', '') != '')
+						THIS.name = data.detail.name;
+					else
+						THIS.name = 'icon';
+
+					let child = THIS.obj.children[0];
+					let nameSpn;
+					if(child !== undefined){
+
+						if(child.className === 'nameInp'){
+
+							THIS.obj.removeChild(child);
+							nameSpn = document.createElement('span');
+							nameSpn.className = 'name';
+							nameSpn.innerHTML = THIS.name;
+							THIS.obj.appendChild(nameSpn);
+						
+						}else{
+
+							nameSpn = child;
+							child.innerHTML = THIS.name;
+
+						}
+
+					}
+
+				})
+
+				let nameInp = document.createElement('textarea');
+				let child = this.obj.children[0];
+				if(child !== undefined)
+					if(child.className === 'name')
+						this.obj.removeChild(child);
+
+				nameInp.className = 'nameInp';
+				nameInp.setAttribute('rows', `1`);
+				nameInp.value = this.name;
+				nameInp.setAttribute('onkeydown', `lookToElement('rename', '${this.obj.id}')`);
+				nameInp.setAttribute('onselectstart', '');
+				this.obj.appendChild(nameInp);
+				nameInp.focus();
+				setNameVariable = {};
+				setNameVariable.id = this.obj.id;
+				setNameVariable.elemEvent = this.obj;
+				setNameVariable.obj = nameInp;
+				setNameVariable.type = 'rename';
+				setNameVariable.event = true;
+
+
+			}})	
+
+		})
 		
 	}
 
+	setName(){
+
+		let nameInp = document.createElement('textarea');
+		let child = this.obj.children[0];
+		if(child !== undefined)
+			if(child.className === 'name')
+				this.obj.removeChild(child);
+
+		nameInp.className = 'nameInp';
+		nameInp.setAttribute('rows', `1`);
+		nameInp.value = this.name;
+		nameInp.setAttribute('onkeydown', `lookToElement('setName', '${this.obj.id}')`);
+		nameInp.setAttribute('onselectstart', '');
+		this.obj.appendChild(nameInp);
+		nameInp.focus();
+		setNameVariable = {};
+		setNameVariable.id = this.obj.id;
+		setNameVariable.elemEvent = this.obj;
+		setNameVariable.obj = nameInp;
+		setNameVariable.type = 'setname';
+		setNameVariable.event = true;
+
+	}
+
 }
-
-
-
-
 
 class MenuOnRightClick{
 
@@ -497,6 +586,16 @@ class MenuOnRightClick{
 
 		menuOnRightClick = null;
 
+	}
+
+}
+
+class Window{
+
+	constructor(whose){
+
+		this.whose = whose;
+		
 	}
 
 }

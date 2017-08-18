@@ -99,3 +99,61 @@ span, input, textarea, button{
 .menuOnRightClick span.button:last-child{
 	border-bottom: none;
 }
+
+.window{
+    position: absolute;
+    z-index: 3;
+    width: 60%;
+    height: 70%;
+    top: 15%;
+    left: 20%;
+    border-radius: 10px;
+    /*background-color: rgba(0, 0, 0, 0.5);*/
+
+
+
+}
+
+.window .topSideBar{
+    background: rgba(229,229,229,1);
+    background: -moz-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(229,229,229,1)), color-stop(100%, rgba(174,174,174,1)));
+    background: -webkit-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -o-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -ms-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: linear-gradient(to bottom, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    width: 100%;
+    height: 30px;
+}
+
+.window .topSideBar .buttons{
+    width: 65px;
+    height: 15px;
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.window .topSideBar .buttons .button{
+    width: 15px;
+    height: 15px;
+    margin-right: 4px;
+    border-radius: 50%;
+    display: inline-block;
+    background-size: cover;
+}
+
+.window .topSideBar .buttons .button:last-child{
+    margin-right: 0px;
+}
+
+#closeWindow{
+    background-image: url('closeWindow.jpg');
+}
+
+#hideWindow{
+    background-image: url('HideWindow.jpg');
+}
+
+#minInWindow{
+    background-image: url('mininWindow.jpg');
+}
