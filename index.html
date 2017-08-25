@@ -6,17 +6,51 @@
 		<link rel="stylesheet" href="style.css">
 		<script type="text/javascript" src="main.js"></script>
 	</head>
-	<body onmousemove="moveLockIcon()" onselectstart="return false" onmousedown="return false">
+	<body onmousemove="moveLockIcon()">
 		<div onclick="menuOnRightClickClose()" oncontextmenu="fMenuOnRightClick('desktop')" id="desktop"></div>
-		<div class="window">
+		<div class="windowActive">
 			<div class="topSideBar">
-				<div class="buttons">
-					<div class="button" id="closeWindow"></div>
-					<div class="button" id="hideWindow"></div>
-					<div class="button" id="minInWindow"></div>
+				<div class="top">
+					<div class="buttonsCHM fl-left"><!-- CHM = CLOSE|HIDE|MINIMALIZE -->
+						<div class="button" id="closeWindow"></div>
+						<div class="button" id="hideWindow"></div>
+						<div class="button" id="minInWindow"></div>
+					</div>
+					<span class="nameFolder">Folder</span>
+					<div class="icon resizeWindowIcon" id="fullSizeWindow"></div>
+				</div>
+				<div class="bottom">
+					<div class="toolBar">
+						<div class="backNext">
+							<button class="buttonsActive fl-left"><div class="icon backActive"></div></button>
+							<button class="buttons fl-right"><div class="icon next"></div></button>
+						</div>
+						<div class="displayBlock">
+							<button class="buttonsActive fl-left"><div class="icon tableActive"></div></button>
+							<button class="buttons fl-right"><div class="icon list"></div></button>
+						</div>
+						<div class="search">
+							<input type="text">
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="leftSideBar"></div>
+
+			<div class="leftSideBar">
+				<div class="favorites">
+					<span class="favorites">Favorites</span>
+					<div class="favoritesFolder icon desktopIcon">
+						<span class="name">Desktop</span>
+					</div>
+					<div class="favoritesFolder icon folderIcon">
+						<span class="name">Вёрстка в адаптиве</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="content">
+				
+			</div>
 		</div>
 	</body>
 </html>

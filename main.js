@@ -115,9 +115,13 @@ function allIconsActiveFalse(){
 
 		if(obj.activeState === true){
 
-			obj.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
-			obj.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-			obj.obj.children[0].style.color = 'black';
+			// obj.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
+			// obj.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+			// obj.obj.children[0].style.color = 'black';
+
+			obj.obj.className = obj.obj.className.replace('Active', '');
+			// obj.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+			// obj.obj.children[0].style.color = 'black';
 			obj.activeState = false;
 			obj.obj.setAttribute('data-active', 'false');
 
@@ -329,32 +333,32 @@ class Icon{
 		this.obj.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'i${icons.length}')`);
 		this.obj.setAttribute('onclick', `menuOnRightClickClose('i${icons.length}')`);
 		this.obj.setAttribute('ondblclick', `openWindow('i${icons.length}')`);
-		this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+		// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
 		this.activeState = true;
 
 
 		if(xI - 37 < 0)
-			this.x = 0
+			this.posX = 0
 		else if(xI + 37 > document.documentElement.clientWidth)
-			this.x = document.documentElement.clientWidth - 78
+			this.posX = document.documentElement.clientWidth - 78
 		else
-			this.x = xI - 37
+			this.posX = xI - 37
 
 		if(yI - 42 < 0)
-			this.y = 0
+			this.posY = 0
 		else if(yI + 42 > document.documentElement.clientHeight)
-			this.y = document.documentElement.clientHeight - 91
+			this.posY = document.documentElement.clientHeight - 91
 		else
-			this.y = yI - 42
+			this.posY = yI - 42
 
-		this.obj.style.left = `${this.x}px`;
-		this.obj.style.top = `${this.y}px`;
+		this.obj.style.left = `${this.posX}px`;
+		this.obj.style.top = `${this.posY}px`;
 
 		setDropAndDrag('icon', this.obj);
 
 		if(type === 'folder'){
 
-			this.obj.className = 'folder';
+			this.obj.className = 'folderActive';
 
 		}
 
@@ -392,88 +396,178 @@ class Icon{
 
 			let parent;
 			if(THIS.obj.parentElement.className !== undefined && THIS.obj.parentElement.className !== '')
-				parent = `${THIS.obj.parentElement.tagName}.${THIS.obj.parentElement.className}`;
+				THIS.parent = `${THIS.obj.parentElement.tagName}.${THIS.obj.parentElement.className}`;
 			else
-				parent = `${THIS.obj.parentElement.tagName}`;
+				THIS.parent = `${THIS.obj.parentElement.tagName}`;
 
-			icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.obj, posX: THIS.x, posY: THIS.y, parent: parent, childIcons: [], activeState: THIS.activeState, active: function(state){
+			THIS.id = `i${icons.length}`;
+			THIS.childIcons = []; 
 
-				if(state === 'true'){
+			icons.push(THIS);
 
-					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-					this.obj.children[0].style.color = 'white';
-					this.activeState = true;
-					this.obj.setAttribute('data-active', 'true');
+			// icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.obj, posX: THIS.x, posY: THIS.y, parent: parent, childIcons: [], activeState: THIS.activeState, active: function(state){
 
-				}else{
+			// 	if(state === 'true'){
 
-					this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-					this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-					this.obj.children[0].style.color = 'black';
-					this.activeState = false;
-					this.obj.setAttribute('data-active', 'false');
+			// 		this.obj.className = 'folderActive';
+			// 		// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+			// 		// this.obj.children[0].style.color = 'white';
 
-				}
+			// 		// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+			// 		// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+			// 		// this.obj.children[0].style.color = 'white';
+			// 		this.activeState = true;
+			// 		this.obj.setAttribute('data-active', 'true');
 
-			}, rename: function(){
+			// 	}else{
 
-				let THIS = this;
-				this.obj.addEventListener("onRename", function(data){
+			// 		this.obj.className = 'folder';
+			// 		// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+			// 		// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+			// 		// this.obj.children[0].style.color = 'black';
+			// 		this.activeState = false;
+			// 		this.obj.setAttribute('data-active', 'false');
 
-					if(data.detail.name.replace(' ', '') != '')
-						THIS.name = data.detail.name;
-					else
-						THIS.name = 'icon';
+			// 	}
 
-					let child = THIS.obj.children[0];
-					let nameSpn;
-					if(child !== undefined){
+			// }, rename: function(){
 
-						if(child.className === 'nameInp'){
+			// 	let THIS = this;
+			// 	this.obj.addEventListener("onRename", function(data){
 
-							THIS.obj.removeChild(child);
-							nameSpn = document.createElement('span');
-							nameSpn.className = 'name';
-							nameSpn.innerHTML = THIS.name;
-							THIS.obj.appendChild(nameSpn);
+			// 		if(data.detail.name.replace(' ', '') != '')
+			// 			THIS.name = data.detail.name;
+			// 		else
+			// 			THIS.name = 'icon';
+
+			// 		let child = THIS.obj.children[0];
+			// 		let nameSpn;
+			// 		if(child !== undefined){
+
+			// 			if(child.className === 'nameInp'){
+
+			// 				THIS.obj.removeChild(child);
+			// 				nameSpn = document.createElement('span');
+			// 				nameSpn.className = 'name';
+			// 				nameSpn.innerHTML = THIS.name;
+			// 				THIS.obj.appendChild(nameSpn);
 						
-						}else{
+			// 			}else{
 
-							nameSpn = child;
-							child.innerHTML = THIS.name;
+			// 				nameSpn = child;
+			// 				child.innerHTML = THIS.name;
 
-						}
+			// 			}
 
-					}
+			// 		}
 
-				})
+			// 	})
 
-				let nameInp = document.createElement('textarea');
-				let child = this.obj.children[0];
-				if(child !== undefined)
-					if(child.className === 'name')
-						this.obj.removeChild(child);
+			// 	let nameInp = document.createElement('textarea');
+			// 	let child = this.obj.children[0];
+			// 	if(child !== undefined)
+			// 		if(child.className === 'name')
+			// 			this.obj.removeChild(child);
 
-				nameInp.className = 'nameInp';
-				nameInp.setAttribute('rows', `1`);
-				nameInp.value = this.name;
-				nameInp.setAttribute('onkeydown', `lookToElement('rename', '${this.obj.id}')`);
-				nameInp.setAttribute('onselectstart', '');
-				this.obj.appendChild(nameInp);
-				nameInp.focus();
-				setNameVariable = {};
-				setNameVariable.id = this.obj.id;
-				setNameVariable.elemEvent = this.obj;
-				setNameVariable.obj = nameInp;
-				setNameVariable.type = 'rename';
-				setNameVariable.event = true;
+			// 	nameInp.className = 'nameInp';
+			// 	nameInp.setAttribute('rows', `1`);
+			// 	nameInp.value = this.name;
+			// 	nameInp.setAttribute('onkeydown', `lookToElement('rename', '${this.obj.id}')`);
+			// 	this.obj.appendChild(nameInp);
+			// 	nameInp.focus();
+			// 	setNameVariable = {};
+			// 	setNameVariable.id = this.obj.id;
+			// 	setNameVariable.elemEvent = this.obj;
+			// 	setNameVariable.obj = nameInp;
+			// 	setNameVariable.type = 'rename';
+			// 	setNameVariable.event = true;
 
 
-			}})	
+			// }})	
 
 		})
 		
+	}
+
+	active(state){
+
+		if(state === 'true'){
+
+			this.obj.className = 'folderActive';
+			// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+			// this.obj.children[0].style.color = 'white';
+
+			// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+			// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
+			// this.obj.children[0].style.color = 'white';
+			this.activeState = true;
+			this.obj.setAttribute('data-active', 'true');
+
+		}else{
+
+			this.obj.className = 'folder';
+			// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+			// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
+			// this.obj.children[0].style.color = 'black';
+			this.activeState = false;
+			this.obj.setAttribute('data-active', 'false');
+
+		}
+
+	}
+
+	rename(){
+
+		let THIS = this;
+		this.obj.addEventListener("onRename", function(data){
+
+			if(data.detail.name.replace(' ', '') != '')
+				THIS.name = data.detail.name;
+			else
+				THIS.name = 'icon';
+
+			let child = THIS.obj.children[0];
+			let nameSpn;
+			if(child !== undefined){
+
+				if(child.className === 'nameInp'){
+
+					THIS.obj.removeChild(child);
+					nameSpn = document.createElement('span');
+					nameSpn.className = 'name';
+					nameSpn.innerHTML = THIS.name;
+					THIS.obj.appendChild(nameSpn);
+				
+				}else{
+
+					nameSpn = child;
+					child.innerHTML = THIS.name;
+
+				}
+
+			}
+
+		})
+
+		let nameInp = document.createElement('textarea');
+		let child = this.obj.children[0];
+		if(child !== undefined)
+			if(child.className === 'name')
+				this.obj.removeChild(child);
+
+		nameInp.className = 'nameInp';
+		nameInp.setAttribute('rows', `1`);
+		nameInp.value = this.name;
+		nameInp.setAttribute('onkeydown', `lookToElement('rename', '${this.obj.id}')`);
+		this.obj.appendChild(nameInp);
+		nameInp.focus();
+		setNameVariable = {};
+		setNameVariable.id = this.obj.id;
+		setNameVariable.elemEvent = this.obj;
+		setNameVariable.obj = nameInp;
+		setNameVariable.type = 'rename';
+		setNameVariable.event = true;
+
 	}
 
 	setName(){
@@ -488,7 +582,6 @@ class Icon{
 		nameInp.setAttribute('rows', `1`);
 		nameInp.value = this.name;
 		nameInp.setAttribute('onkeydown', `lookToElement('setName', '${this.obj.id}')`);
-		nameInp.setAttribute('onselectstart', '');
 		this.obj.appendChild(nameInp);
 		nameInp.focus();
 		setNameVariable = {};
@@ -499,6 +592,8 @@ class Icon{
 		setNameVariable.event = true;
 
 	}
+
+
 
 }
 

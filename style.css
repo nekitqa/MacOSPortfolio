@@ -2,12 +2,25 @@
 	margin: 0px;
 	padding: 0px;
 	overflow: hidden;
+    cursor: url('cursors/Arrow.cur'), auto; 
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+*::-webkit-scrollbar{
+    width: 15px;
+    background-color: #f7f7f7;
+}
+
+*::-webkit-scrollbar-thumb{
+    background-color: #c4c4c4;
+    border-radius: 25px;
+    border: 2px solid #f7f7f7;
 }
 
 html, body{
 	width: 100%;
 	height: 100%;
-	cursor: url('cursors/Arrow.cur'), auto;	
 }
 
 input, textarea, button{
@@ -19,7 +32,65 @@ span, input, textarea, button{
 	font-family: 'Roboto';
 }
 
+.fl-right{
+    float: right;
+}
 
+.fl-left{
+    float: left;
+}
+
+.icon{
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px;
+    width: 100%;
+    height: 100%;
+}
+
+.back{
+    background-image: url('back.png');
+}
+
+.backActive{
+    background-image: url('backActive.png');
+}
+
+.next{
+    background-image: url('next.png');
+}
+
+.nextActive{
+    background-image: url('nextActive.png');
+}
+
+.table{
+    background-image: url('table.png');
+}
+
+.list{
+    background-image: url('list.png');
+}
+
+.tableActive{
+    background-image: url('tableActive.png');
+}
+
+.listActive{
+    background-image: url('listActive.png');
+}
+
+.desktopIcon{
+    background-image: url('desktopIcon.png');
+}
+
+.folderIcon{
+    background-image: url('folderIcon.png');
+}
+
+.resizeWindowIcon{
+    background-image: url('resizeWindow.png');
+}
 
 #desktop{
 	position: absolute;
@@ -29,6 +100,49 @@ span, input, textarea, button{
 	height: 100%;
 	background-image: url('bg.jpg');
 	background-size: cover;
+}
+
+.folderActive{
+    position: absolute;
+    z-index: 2;
+    top: 0px;
+    left: 0px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin: 3px;
+    border-radius: 5px;
+    width: 64px;
+    height: 85px;
+    background-image: url(folder.png);
+    background-size: 64px;
+    padding: 0px 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    background-position-x: center;
+    background-repeat: no-repeat;
+}
+
+.folderActive span.name{
+    color: white;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 0px 5px;
+    padding-top: 2px;
+    max-width: 100%;
+    border-radius: 5px;
+    margin-bottom: 3px;
+    background-color: rgba(86, 136, 218, 1);
+}
+
+.folderActive textarea.nameInp{
+    border-radius: 1px;
+    border: 1px solid #f5f5f5;
+    width: 100%;
+    font-size: 12px;
+    margin-bottom: 5px;
+    resize: none;
+    text-align: center;
+    cursor: url('cursors/IBeam.cur'), auto; 
 }
 
 .folder{
@@ -52,22 +166,12 @@ span, input, textarea, button{
 
 .folder span.name{
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     padding: 0px 5px;
     padding-top: 2px;
     max-width: 100%;
     border-radius: 5px;
     margin-bottom: 3px;
-}
-
-.folder textarea.nameInp{
-	border-radius: 1px;
-	border: 1px solid #f5f5f5;
-	width: 100%;
-	font-size: 12px;
-	margin-bottom: 5px;
-	resize: none;
-    text-align: center;
 }
 
 .menuOnRightClick{
@@ -80,7 +184,7 @@ span, input, textarea, button{
     border-radius: 5px;
     border: 1px solid #f5f5f5;
     background-color: #ffffff;
-    box-shadow: 0 0 20px 2px #5f5f5f;
+    box-shadow: 0 0 20px 1px black;
 }
 
 .menuOnRightClick span.button{
@@ -100,21 +204,19 @@ span, input, textarea, button{
 	border-bottom: none;
 }
 
-.window{
+.windowActive{
     position: absolute;
     z-index: 3;
     width: 60%;
     height: 70%;
     top: 15%;
     left: 20%;
-    border-radius: 10px;
-    /*background-color: rgba(0, 0, 0, 0.5);*/
-
-
-
+    border-radius: 5px;
+    box-shadow: 0 0 40px 2px black;
+    border: 1px solid #aeaeae;
 }
 
-.window .topSideBar{
+.windowActive .topSideBar{
     background: rgba(229,229,229,1);
     background: -moz-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
     background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(229,229,229,1)), color-stop(100%, rgba(174,174,174,1)));
@@ -123,37 +225,330 @@ span, input, textarea, button{
     background: -ms-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
     background: linear-gradient(to bottom, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
     width: 100%;
-    height: 30px;
+    height: 60px;
+    border-bottom: 1px solid #6d6c74;
 }
 
-.window .topSideBar .buttons{
-    width: 65px;
+.windowActive .topSideBar .bottom .toolBar .backNext .buttons{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background-color: rgba(229, 229, 229, 1);
+    background: rgba(229,229,229,1);
+    background: -moz-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(229,229,229,1)), color-stop(100%, rgba(174,174,174,1)));
+    background: -webkit-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -o-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -ms-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: linear-gradient(to bottom, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    /* or 246 */
+}
+
+.windowActive .topSideBar .bottom .toolBar .backNext .buttonsActive{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background: rgba(229,229,229,1);
+    background: -moz-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(229,229,229,1)), color-stop(100%, rgba(174,174,174,1)));
+    background: -webkit-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -o-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -ms-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: linear-gradient(to bottom, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+}
+
+.windowActive .topSideBar .bottom .toolBar .displayBlock .buttons{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background: rgba(229,229,229,1);
+    background: -moz-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(229,229,229,1)), color-stop(100%, rgba(174,174,174,1)));
+    background: -webkit-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -o-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: -ms-linear-gradient(top, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    background: linear-gradient(to bottom, rgba(229,229,229,1) 0%, rgba(174,174,174,1) 100%);
+    /* or 246 */
+}
+
+.windowActive .topSideBar .bottom .toolBar .displayBlock .buttonsActive{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background: rgba(185,185,185,1);
+    background: -moz-linear-gradient(top, rgba(185,185,185,1) 0%, rgba(130,130,130,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(185,185,185,1)), color-stop(100%, rgba(130,130,130,1)));
+    background: -webkit-linear-gradient(top, rgba(185,185,185,1) 0%, rgba(130,130,130,1) 100%);
+    background: -o-linear-gradient(top, rgba(185,185,185,1) 0%, rgba(130,130,130,1) 100%);
+    background: -ms-linear-gradient(top, rgba(185,185,185,1) 0%, rgba(130,130,130,1) 100%);
+    background: linear-gradient(to bottom, rgba(185,185,185,1) 0%, rgba(130,130,130,1) 100%);
+}
+
+.window{
+    position: absolute;
+    z-index: 3;
+    width: 60%;
+    height: 70%;
+    top: 15%;
+    left: 20%;
+    border-radius: 5px;
+    /*box-shadow: 0 0 40px 2px black;*/
+    border: 1px solid #aeaeae;
+}
+
+.window .topSideBar{
+    background: rgba(210,210,210,1);
+    width: 100%;
+    height: 60px;
+    border-bottom: 1px solid #6d6c74;
+}
+
+.window .topSideBar .top, .windowActive .topSideBar .top{
+    height: 23px;
+    width: 100%;
+    padding-top: 5px;
+    text-align: center;
+}
+
+.window .topSideBar .bottom, .windowActive .topSideBar .bottom{
+    height: 35px;
+    width: 100%;
+}
+
+.window .topSideBar .bottom .toolBar, .windowActive .topSideBar .bottom .toolBar{
+    position: relative;
+    height: 29px;
+    display: inline-block;
+    margin-left: 15px;
+    width: inherit;
+}
+
+.window .topSideBar .bottom .toolBar .displayBlock, .windowActive .topSideBar .bottom .toolBar .displayBlock{
+    height: 23px;
+    border-radius: 3px;
+    border: 1px solid #7b7b7b;
+    display: inline-block;
+    margin-left: 100px;
+}
+
+.window .topSideBar .bottom .toolBar .backNext, .windowActive .topSideBar .bottom .toolBar .backNext{
+    height: 23px;
+    width: 55px;
+    border-radius: 3px;
+    border: 1px solid #7b7b7b;
+    display: inline-block;
+}
+
+.window .topSideBar .bottom .toolBar .backNext:before, .windowActive .topSideBar .bottom .toolBar .backNext:before{
+    content: "";
+    display: inline-block;
+    position: absolute;
     height: 15px;
-    margin-top: 5px;
+    width: 1px;
+    background-color: #636363;
+    left: 27.5px;
+    top: 5px;
+}
+
+/*  BUTTONS FOR .BACKNEXT  */
+
+.window .topSideBar .bottom .toolBar .backNext .buttons{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background-color: rgba(210, 210, 210, 1);
+    /* or 246 */
+}
+
+.window .topSideBar .bottom .toolBar .backNext .buttonsActive{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background: rgba(210,210,210,1);
+}
+
+.window .topSideBar .bottom .toolBar .backNext .buttonsActive:hover, .windowActive .topSideBar .bottom .toolBar .backNext .buttonsActive:hover{
+    background: rgba(210,210,210,1);
+    background: -moz-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(210,210,210,1)), color-stop(100%, rgba(150,150,150,1)));
+    background: -webkit-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: -o-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: -ms-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: linear-gradient(to bottom, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+}
+
+/*  BUTTONS FOR .DISPLAYBLOCK  */
+
+.window .topSideBar .bottom .toolBar .displayBlock .buttons{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background: rgba(210,210,210,1);
+    /* or 246 */
+}
+
+.window .topSideBar .bottom .toolBar .displayBlock .buttonsActive{
+    width: 27.5px;
+    height: 100%;
+    display: inline-block;
+    background: rgba(130,130,130,1);
+}
+
+.window .topSideBar .bottom .toolBar .displayBlock .buttons:hover, .windowActive .topSideBar .bottom .toolBar .displayBlock .buttons:hover{
+    background: rgba(210,210,210,1);
+    background: -moz-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(210,210,210,1)), color-stop(100%, rgba(150,150,150,1)));
+    background: -webkit-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: -o-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: -ms-linear-gradient(top, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+    background: linear-gradient(to bottom, rgba(210,210,210,1) 0%, rgba(150,150,150,1) 100%);
+}
+
+.window .topSideBar .bottom .toolBar .search, .windowActive .topSideBar .bottom .toolBar .search{
+    display: inline-block;
+    float: right;
+    margin-right: 25px;
+}
+
+.window .topSideBar .bottom .toolBar .search input, .windowActive .topSideBar .bottom .toolBar .search input{
+    width: 250px;
+    height: 23px;
+    border-radius: 15px;
+    border: 1px solid #7b7b7b;
+    background-color: #f8f8f8;
+    padding-left: 25px;
+    cursor: url('cursors/IBeam.cur'), auto; 
+    background-image: url('find.png');
+    background-position: 4px center;
+    background-size: 16px;
+    background-repeat: no-repeat;
+}
+
+/* CHM = CLOSE|HIDE|MINIMALIZE */
+.window .topSideBar .top .buttonsCHM, .windowActive .topSideBar .top .buttonsCHM{
+    width: 68px;
+    height: 23px;
     margin-left: 10px;
+    display: inline-block;
 }
 
-.window .topSideBar .buttons .button{
-    width: 15px;
-    height: 15px;
-    margin-right: 4px;
+.window .topSideBar .top .buttonsCHM .button, .windowActive .topSideBar .top .buttonsCHM .button{
+    margin-top: 2px;
+    width: 12px;
+    height: 12px;
+    padding: 2px 2px;
+    margin-right: 2px;
     border-radius: 50%;
     display: inline-block;
-    background-size: cover;
+    background-size: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.window .topSideBar .buttons .button:last-child{
+.window .topSideBar .top span.nameFolder, .windowActive .topSideBar .top span.nameFolder{
+    font-size: 16px;
+    margin-top: 2px;
+    margin-right: 83px;
+    display: inline-block;
+}
+
+#closeWindow:hover{
+    border: 2px solid #a11a16;
+    padding: 0px 0px;
+}
+
+#hideWindow:hover{
+    border: 2px solid #b85c15;
+    padding: 0px 0px;
+}
+
+#minInWindow:hover{
+    border: 2px solid #347817;
+    padding: 0px 0px;
+}
+
+.window .topSideBar .top .buttonsCHM .button:last-child, .windowActive .topSideBar .top .buttonsCHM .button:last-child{
     margin-right: 0px;
 }
 
 #closeWindow{
-    background-image: url('closeWindow.jpg');
+    background-image: url('closeWindow.png');
 }
 
 #hideWindow{
-    background-image: url('HideWindow.jpg');
+    background-image: url('HideWindow.png');
 }
 
 #minInWindow{
-    background-image: url('mininWindow.jpg');
+    background-image: url('mininWindow.png');
+}
+
+.window .leftSideBar, .windowActive .leftSideBar{
+    display: inline-block;
+    width: 170px;
+    background-color: #e5e8ef;
+    border-right: 1px solid #d2d2d2;
+    height: calc(100% - 60px);
+    overflow: auto;
+    float: left;
+}
+
+.window .leftSideBar div.favorites, .windowActive .leftSideBar div.favorites{
+    margin-top: 3px;
+    width: 100%;
+    display: inline-block;
+}
+
+.window .leftSideBar div.favorites span.favorites, .windowActive .leftSideBar div.favorites span.favorites{
+    font-size: 13px;
+    margin-left: 7px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #686b72;
+}
+
+.window .leftSideBar div.favorites .favoritesFolder, .windowActive .leftSideBar div.favorites .favoritesFolder{
+    padding: 2px 0px 0px 0px;
+    background-position: 17px 2px;
+    background-size: 16px;
+}
+
+.window .leftSideBar div.favorites .favoritesFolder:hover, .windowActive .leftSideBar div.favorites .favoritesFolder:hover{
+    background-color: #D6D9E0;
+}
+
+.window .leftSideBar div.favorites .favoritesFolder span.name, .windowActive .leftSideBar div.favorites .favoritesFolder span.name{
+    margin-left: 37px;
+    color: #010508;
+    font-size: 15px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.window .content, .windowActive .content{
+    width: calc(100% - 171px);
+    height: calc(100% - 61px);
+    float: right;
+    display: inline-flex;
+    background-color: #ffffff;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+}
+
+.window .content .folder, .windowActive .content .folder{
+    position: unset;
+}
+
+#fullSizeWindow{
+    float: right;
+    height: 20px;
+    width: 20px;
+    margin-top: -5px;
+    background-size: 20px;
+    opacity: 0.7;
+}
+
+#fullSizeWindow:hover{
+    opacity: 1;
 }
