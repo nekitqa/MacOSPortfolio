@@ -2,14 +2,20 @@
 
 const desktop = document.querySelector(`#desktop`);
 
+const FAVORITES = [{type: 'desktopFolder', name: 'Desktop'}];
+const CHM = ['closeWindow', 'hideWindow', 'minInWindow']; // CLOSE|HIDE|MINIMALIZE = CHM
+
 const desktopMenuOnRightClick = ['New Folder'];
 const desktopIconMenuOnRightClick = ['Open', 'Delete', 'Rename'];
 
 let folders = [];
 let icons = [];
+let trashBin = [];
+let windows = [];
 
 let menuOnRightClick = null;
 
+let lockWindow = null;
 let lockIcon = null;
 let move = false;
 
@@ -18,9 +24,71 @@ let rename = false;
 
 let timeout;
 
+
+
+let q = 0;
+
+
+
+
+// function renderHtmlToCanvas(html, x, y, width, height) {
+
+// 	let ctx = document.getElementById('canvas').getContext('2d');
+// 	let data =  
+//   		"data:image/svg+xml;charset=utf-8," +
+//     	'<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
+//     		'<foreignObject width="100%" height="100%"><style>div{background-color: red;}</style>' +
+//     			HtmlToXml(html) +
+//     		"</foreignObject>" +
+//     	"</svg>";
+
+// 	let img = new Image();
+
+// 	img.onload = function() {
+
+// 		ctx.drawImage(img, x, y);
+
+// 	};
+
+// 	img.src = data;
+
+// }
+
+// function HtmlToXml(html){
+
+//   let doc = document.implementation.createHTMLDocument("");;
+//   doc.write(html);
+
+//   doc.documentElement.setAttribute("xmlns", doc.documentElement.namespaceURI);
+
+//   html = new XMLSerializer().serializeToString(doc.body);
+//   return html;
+
+// }
+
+function focusFolder(id){
+
+	allIconsActiveFalse();
+	if(windows.find(obj => obj.id === id) !== undefined)
+		windows.find(obj => obj.id === id).focus();
+
+}
+
+function deleteIcon(id){
+
+	icons.find(obj => obj.id === id).delete();
+
+}
+
 function openWindow(id){
 
-	new Window(icons.find(obj => obj.id === id));
+	new Window(icons.find(obj => obj.id === id).type, icons.find(obj => obj.id === id));
+
+}
+
+function closeWindow(id){
+
+	windows.find(obj => obj.id === id).close();
 
 }
 
@@ -97,7 +165,15 @@ function MenuOnRightClickButtonFunction(nameF, id){
 
 	}else if(strLowerCase === 'rename'){
 
-		icons.find(obj => obj.id === id).rename();;
+		icons.find(obj => obj.id === id).rename();
+
+	}else if(strLowerCase === 'open'){
+
+		openWindow(id);
+
+	}else if(strLowerCase === 'delete'){
+
+		deleteIcon(id);
 
 	}
 	
@@ -115,15 +191,25 @@ function allIconsActiveFalse(){
 
 		if(obj.activeState === true){
 
-			// obj.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
-			// obj.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-			// obj.obj.children[0].style.color = 'black';
-
 			obj.obj.className = obj.obj.className.replace('Active', '');
-			// obj.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-			// obj.obj.children[0].style.color = 'black';
 			obj.activeState = false;
 			obj.obj.setAttribute('data-active', 'false');
+
+		}
+
+	}
+
+	if(windows.length !== 0){
+
+		for(let windowObj of windows){
+
+			if(windowObj.activeState === true){
+
+				windowObj.obj.setAttribute('data-active', 'false');
+				windowObj.obj.className = 'window';
+				windowObj.activeState = false;
+
+			}
 
 		}
 
@@ -181,12 +267,38 @@ function menuOnRightClickClose(id = null){
 		menuOnRightClick.close();
 
 	}
-
-	allIconsActiveFalse();
-
+	
 	if(id != null){
 
-		icons.find(obj => obj.id === id).active('true');
+		if(setNameVariable !== null){
+
+			if(event.target === icons.find(obj => obj.id === id).obj)
+				icons.find(obj => obj.id === id).active('true');
+
+		}else{
+
+			icons.find(obj => obj.id === id).active('true');
+
+		}
+
+
+	}else{
+
+		allIconsActiveFalse();
+
+	}
+
+}
+
+function moveEl(){
+
+	if(lockIcon === null){
+
+		moveLockWindow();
+
+	}else if(lockWindow === null){
+
+		moveLockIcon();
 
 	}
 
@@ -198,82 +310,93 @@ function lockIconToMouse(id){
 
 	if(setNameVariable != null){
 
-		if(setNameVariable.type === 'setname'){
+		if(event.target === setNameVariable.elemEvent){
 
-			myEvent = new CustomEvent("onSetName", {
+			if(setNameVariable.type === 'setname'){
 
-				detail: {
+				myEvent = new CustomEvent("onSetName", {
 
-					name: setNameVariable.obj.value
+					detail: {
 
-				}
+						name: setNameVariable.obj.value
 
-			});
+					}
 
-		}else if(setNameVariable.type === 'rename'){
+				});
 
-			myEvent = new CustomEvent("onRename", {
+			}else if(setNameVariable.type === 'rename'){
 
-				detail: {
+				myEvent = new CustomEvent("onRename", {
 
-					name: setNameVariable.obj.value
+					detail: {
 
-				}
+						name: setNameVariable.obj.value
 
-			});
+					}
+
+				});
+
+			}
+
+			setNameVariable.elemEvent.dispatchEvent(myEvent);
+			setNameVariable = null;
+			lockIcon = icons.find(obj => obj.id === id);
+			lockIcon.coords = lockIcon.obj.getBoundingClientRect();
+			lockIcon.coords.x = event.clientX - lockIcon.coords.left;
+			lockIcon.coords.y = event.clientY - lockIcon.coords.top;
+			menuOnRightClickClose(id);
 
 		}
 
-		setNameVariable.elemEvent.dispatchEvent(myEvent);
+	}else{
 
-		setNameVariable = null;
+		lockIcon = icons.find(obj => obj.id === id);
+		lockIcon.coords = lockIcon.obj.getBoundingClientRect();
+		lockIcon.coords.x = event.clientX - lockIcon.coords.left;
+		lockIcon.coords.y = event.clientY - lockIcon.coords.top;
+		menuOnRightClickClose(id);
 
 	}
-
-	lockIcon = icons.find(obj => obj.id === id);
-	lockIcon.coords = lockIcon.obj.getBoundingClientRect();
-	lockIcon.coords.x = event.clientX - lockIcon.coords.left;
-	lockIcon.coords.y = event.clientY - lockIcon.coords.top;
-	lockIcon.obj.style.zIndex = '100';
-	menuOnRightClickClose(id);
 
 }
 
 function unlockIconToMouse(){
 
-	lockIcon.posX = event.clientX - lockIcon.coords.x;
-	lockIcon.posY = event.clientY - lockIcon.coords.y;
+	if(lockIcon !== null){
 
+		lockIcon.posX = event.clientX - lockIcon.coords.x;
+		lockIcon.posY = event.clientY - lockIcon.coords.y;
 
+		if(lockIcon.posX - 1 < 0){
 
-	if(lockIcon.posX - 1 < 0){
+			lockIcon.posX = 0;
+			lockIcon.obj.style.left = `${lockIcon.posX}px`;
 
-		lockIcon.posX = 0;
-		lockIcon.obj.style.left = `${lockIcon.posX}px`;
+		}else if(lockIcon.posX + 75 > document.documentElement.clientWidth){
 
-	}else if(lockIcon.posX + 75 > document.documentElement.clientWidth){
+			lockIcon.posX = document.documentElement.clientWidth - 80;
+			lockIcon.obj.style.left = `${lockIcon.posX}px`;
 
-		lockIcon.posX = document.documentElement.clientWidth - 80;
-		lockIcon.obj.style.left = `${lockIcon.posX}px`;
+		}
+
+		if(lockIcon.posY - 1 < 0){
+
+			lockIcon.posY = 0;
+			lockIcon.obj.style.top = `${lockIcon.posY}px`;
+
+		}else if(lockIcon.posY + 84 > document.documentElement.clientHeight){
+
+			lockIcon.posY = document.documentElement.clientHeight - 91;
+			lockIcon.obj.style.top = `${lockIcon.posY}px`;
+
+		}
+
+		delete lockIcon.coords;
+		lockIcon.obj.style.zIndex = '2';
+		lockIcon = null;
+		move = false;
 
 	}
-
-	if(lockIcon.posY - 1 < 0){
-
-		lockIcon.posY = 0;
-		lockIcon.obj.style.top = `${lockIcon.posY}px`;
-
-	}else if(lockIcon.posY + 84 > document.documentElement.clientHeight){
-
-		lockIcon.posY = document.documentElement.clientHeight - 91;
-		lockIcon.obj.style.top = `${lockIcon.posY}px`;
-
-	}
-
-	delete lockIcon.coords;
-	lockIcon.obj.style.zIndex = '2';
-	lockIcon = null;
-	move = false;
 
 }
 
@@ -281,21 +404,83 @@ function moveLockIcon(){
 
 	if(lockIcon !== null){
 
+		if(move !== true){
 
-		if(lockIcon.coords.x + 5 <= event.clientX - lockIcon.coords.left){
+			if(lockIcon.coords.x + 5 <= event.clientX - lockIcon.coords.left){
 
+				lockIcon.obj.style.zIndex = '100';
+				move = true;
+
+			}else if(lockIcon.coords.x - 5 >= event.clientX - lockIcon.coords.left){
+
+				lockIcon.obj.style.zIndex = '100';
+				move = true;
+				
+			}
+
+		}else if(move === true){
+
+			lockIcon.obj.style.left = `${event.clientX - lockIcon.coords.x}px`;
+			lockIcon.obj.style.top = `${event.clientY - lockIcon.coords.y}px`;	
+
+		}
+
+	}
+
+}
+
+function lockWindowToMouse(id){
+
+	if(windows.find(obj => obj.id === id) !== undefined){
+
+		lockWindow = windows.find(obj => obj.id === id);
+		lockWindow.coords = lockWindow.obj.getBoundingClientRect();
+		lockWindow.coords.x = event.clientX - lockWindow.coords.left;
+		lockWindow.coords.y = event.clientY - lockWindow.coords.top;
+		menuOnRightClickClose();
+		lockWindow.focus();
+
+	}
+
+}
+
+function unlockWindowToMouse(){
+
+	if(lockWindow !== null){
+
+		lockWindow.posX = event.clientX - lockWindow.coords.x;
+		lockWindow.posY = event.clientY - lockWindow.coords.y;
+
+		delete lockWindow.coords;
+
+		lockWindow.obj.style.zIndex = '5';
+		lockWindow = null;
+		move = false;
+
+	}
+
+}
+
+function moveLockWindow(){
+
+	if(lockWindow !== null){
+
+		if(lockWindow.coords.x + 5 <= event.clientX - lockWindow.coords.left){
+
+			lockWindow.obj.style.zIndex = '100';
 			move = true;
 
-		}else if(lockIcon.coords.x - 5 >= event.clientX - lockIcon.coords.left){
+		}else if(lockWindow.coords.x - 5 >= event.clientX - lockWindow.coords.left){
 
+			lockWindow.obj.style.zIndex = '100';
 			move = true;
 			
 		}
 
 		if(move === true){
 
-			lockIcon.obj.style.left = `${event.clientX - lockIcon.coords.x}px`;
-			lockIcon.obj.style.top = `${event.clientY - lockIcon.coords.y}px`;
+			lockWindow.obj.style.left = `${event.clientX - lockWindow.coords.x}px`;
+			lockWindow.obj.style.top = `${event.clientY - lockWindow.coords.y}px`;
 
 		}
 
@@ -314,7 +499,11 @@ function setDropAndDrag(type, elem){
 
 	}else if(type === 'window'){
 
-
+		let top = elem.getElementsByClassName('top')[0];
+		top.setAttribute('onmousedown', `lockWindowToMouse('w${windows.length}')`);
+		top.setAttribute('onmouseup', `unlockWindowToMouse()`);
+		elem.setAttribute('ondragstart', `return false`);
+		elem.setAttribute('data-active', 'true');
 
 	}
 
@@ -333,9 +522,7 @@ class Icon{
 		this.obj.setAttribute('oncontextmenu', `fMenuOnRightClick("desktopIcon", 'i${icons.length}')`);
 		this.obj.setAttribute('onclick', `menuOnRightClickClose('i${icons.length}')`);
 		this.obj.setAttribute('ondblclick', `openWindow('i${icons.length}')`);
-		// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
 		this.activeState = true;
-
 
 		if(xI - 37 < 0)
 			this.posX = 0
@@ -405,86 +592,6 @@ class Icon{
 
 			icons.push(THIS);
 
-			// icons.push({id: `i${icons.length}`, type: THIS.type, name: THIS.name, obj: THIS.obj, posX: THIS.x, posY: THIS.y, parent: parent, childIcons: [], activeState: THIS.activeState, active: function(state){
-
-			// 	if(state === 'true'){
-
-			// 		this.obj.className = 'folderActive';
-			// 		// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-			// 		// this.obj.children[0].style.color = 'white';
-
-			// 		// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-			// 		// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-			// 		// this.obj.children[0].style.color = 'white';
-			// 		this.activeState = true;
-			// 		this.obj.setAttribute('data-active', 'true');
-
-			// 	}else{
-
-			// 		this.obj.className = 'folder';
-			// 		// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-			// 		// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-			// 		// this.obj.children[0].style.color = 'black';
-			// 		this.activeState = false;
-			// 		this.obj.setAttribute('data-active', 'false');
-
-			// 	}
-
-			// }, rename: function(){
-
-			// 	let THIS = this;
-			// 	this.obj.addEventListener("onRename", function(data){
-
-			// 		if(data.detail.name.replace(' ', '') != '')
-			// 			THIS.name = data.detail.name;
-			// 		else
-			// 			THIS.name = 'icon';
-
-			// 		let child = THIS.obj.children[0];
-			// 		let nameSpn;
-			// 		if(child !== undefined){
-
-			// 			if(child.className === 'nameInp'){
-
-			// 				THIS.obj.removeChild(child);
-			// 				nameSpn = document.createElement('span');
-			// 				nameSpn.className = 'name';
-			// 				nameSpn.innerHTML = THIS.name;
-			// 				THIS.obj.appendChild(nameSpn);
-						
-			// 			}else{
-
-			// 				nameSpn = child;
-			// 				child.innerHTML = THIS.name;
-
-			// 			}
-
-			// 		}
-
-			// 	})
-
-			// 	let nameInp = document.createElement('textarea');
-			// 	let child = this.obj.children[0];
-			// 	if(child !== undefined)
-			// 		if(child.className === 'name')
-			// 			this.obj.removeChild(child);
-
-			// 	nameInp.className = 'nameInp';
-			// 	nameInp.setAttribute('rows', `1`);
-			// 	nameInp.value = this.name;
-			// 	nameInp.setAttribute('onkeydown', `lookToElement('rename', '${this.obj.id}')`);
-			// 	this.obj.appendChild(nameInp);
-			// 	nameInp.focus();
-			// 	setNameVariable = {};
-			// 	setNameVariable.id = this.obj.id;
-			// 	setNameVariable.elemEvent = this.obj;
-			// 	setNameVariable.obj = nameInp;
-			// 	setNameVariable.type = 'rename';
-			// 	setNameVariable.event = true;
-
-
-			// }})	
-
 		})
 		
 	}
@@ -494,21 +601,12 @@ class Icon{
 		if(state === 'true'){
 
 			this.obj.className = 'folderActive';
-			// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-			// this.obj.children[0].style.color = 'white';
-
-			// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
-			// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 1)';
-			// this.obj.children[0].style.color = 'white';
 			this.activeState = true;
 			this.obj.setAttribute('data-active', 'true');
 
 		}else{
 
 			this.obj.className = 'folder';
-			// this.obj.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-			// this.obj.children[0].style.backgroundColor = 'rgba(86, 136, 218, 0)';
-			// this.obj.children[0].style.color = 'black';
 			this.activeState = false;
 			this.obj.setAttribute('data-active', 'false');
 
@@ -593,7 +691,12 @@ class Icon{
 
 	}
 
+	delete(){
 
+		document.body.removeChild(this.obj);
+		trashBin.push(icons.splice(icons.findIndex(obj => obj === this), 1)[0]);
+
+	}
 
 }
 
@@ -632,7 +735,6 @@ class MenuOnRightClick{
 			allIconsActiveFalse();
 			thisFolder.active('true');
 			
-
 			for(let obj of desktopIconMenuOnRightClick){
 
 				let element = document.createElement('span');
@@ -646,11 +748,9 @@ class MenuOnRightClick{
 
 		}
 
-
 		if(this.x + this.elem.width > document.documentElement.clientWidth){
 
 			this.elem.style.left = document.documentElement.clientWidth - this.elem.width + 'px';
-			// this.x = document.documentElement.clientWidth - this.elem.width;
 
 		}else{
 
@@ -661,7 +761,6 @@ class MenuOnRightClick{
 		if(this.y + this.elem.height > document.documentElement.clientHeight){
 
 			this.elem.style.top = document.documentElement.clientHeight - this.elem.height + 'px';
-			// this.x = document.documentElement.clientHeight - this.elem.height;
 
 		}else{
 
@@ -671,7 +770,6 @@ class MenuOnRightClick{
 
 		document.body.appendChild(this.elem);
 		
-
 	}
 
 	close(){
@@ -687,10 +785,194 @@ class MenuOnRightClick{
 
 class Window{
 
-	constructor(whose){
+	constructor(type, whose){
 
+		menuOnRightClickClose();
 		this.whose = whose;
+		this.type = type;
+		this.id = `w${windows.length}`
+		this.name = this.whose.name;
+		this.obj = document.createElement('div');
+		this.obj.className = 'windowActive';
+		this.obj.id = this.id;
 		
+		this.createElement();
+
+		setDropAndDrag('window', this.obj)
+
+		windows.push(this);
+
+	}
+
+	createElement(){
+
+		if(this.type === 'folder'){
+
+			let topSideBar = document.createElement('div');
+			let top = document.createElement('div');
+			let buttonsCHM = document.createElement('div')
+
+			for(let id of CHM){
+
+				let obj = document.createElement('div');
+				obj.className = 'button';
+				obj.id = id;
+				obj.setAttribute('onmousedown', `${id}('${this.id}')`);
+				buttonsCHM.appendChild(obj);
+
+			}
+
+			let nameFolder = document.createElement('span');
+			let resizeWindowBTN = document.createElement('div');
+
+			let bottom = document.createElement('div');
+			let toolBar = document.createElement('div');
+			let backNext = document.createElement('div');
+
+			for(let i = 0;i < 2; i++){
+				
+				let button = document.createElement('button');
+				let child = document.createElement('div');
+
+				if(i === 0){
+
+					button.className = 'buttons fl-left';
+					child.className = 'icon back';
+					button.appendChild(child);
+					backNext.appendChild(button);
+
+				}else if(i === 1){
+
+					button.className = 'buttons fl-right';
+					child.className = 'icon next';
+					button.appendChild(child);
+					backNext.appendChild(button);
+
+				}
+
+			}
+
+			let displayBlock = document.createElement('div');
+
+			for(let i = 0;i < 2; i++){
+
+				let button = document.createElement('button');
+				let child = document.createElement('div');
+
+				if(i === 0){
+
+					button.className = 'buttonsActive fl-left';
+					child.className = 'icon tableActive';
+					button.appendChild(child);
+					displayBlock.appendChild(button);
+
+				}else if(i === 1){
+
+					button.className = 'buttons fl-right';
+					child.className = 'icon list';
+					button.appendChild(child);
+					displayBlock.appendChild(button);
+
+				}
+
+			}
+
+			let search = document.createElement('div');
+			let searchINP = document.createElement('input');
+
+			let leftSideBar = document.createElement('div');
+			let favoritesBlock = document.createElement('div');
+			let favoritesSpan = document.createElement('span');
+
+			let content = document.createElement('div');
+
+			favoritesBlock.appendChild(favoritesSpan);
+
+			for(let obj of FAVORITES){
+
+				let fav = document.createElement('div');
+				let name = document.createElement('span');
+
+				if(obj.type === 'folder')
+					fav.className = 'favoritesFolder icon folderIcon';
+				else if(obj.type === 'desktopFolder')
+					fav.className = 'favoritesFolder icon desktopIcon';
+				
+				name.className = 'name';
+				name.innerHTML = obj.name;
+
+				fav.appendChild(name);
+				favoritesBlock.appendChild(fav);
+
+			}
+
+
+			topSideBar.className = 'topSideBar';
+			top.className = 'top';
+			bottom.className = 'bottom';
+			buttonsCHM.className = 'buttonsCHM fl-left';
+			nameFolder.className = 'nameFolder';
+			resizeWindowBTN.className = 'icon resizeWindowIcon';
+			toolBar.className = 'toolBar';
+			backNext.className = 'backNext';
+			displayBlock.className = 'displayBlock';
+			search.className = 'search';
+			leftSideBar.className = 'leftSideBar';
+			favoritesBlock.className = 'favorites';
+			favoritesSpan.className = 'favorites';
+			content.className = 'content';
+
+			resizeWindowBTN.id = 'fullSizeWindow';
+
+			nameFolder.innerHTML = this.name;
+			favoritesSpan.innerHTML = 'favorites';
+
+
+			top.appendChild(buttonsCHM);
+			top.appendChild(nameFolder);
+			top.appendChild(resizeWindowBTN);
+			topSideBar.appendChild(top);
+			search.appendChild(searchINP);
+			toolBar.appendChild(backNext);
+			toolBar.appendChild(displayBlock);
+			toolBar.appendChild(search);
+			bottom.appendChild(toolBar);
+			topSideBar.appendChild(bottom);
+
+			leftSideBar.appendChild(favoritesBlock);
+
+			this.obj.appendChild(topSideBar);
+			this.obj.appendChild(leftSideBar);
+			this.obj.appendChild(content);
+
+			this.obj.setAttribute('onclick', `focusFolder('${this.id}')`);
+
+			this.focus();
+
+			document.body.appendChild(this.obj);
+
+			this.posX = this.obj.getBoundingClientRect().left;
+			this.posY = this.obj.getBoundingClientRect().top;
+
+			this.xml = `<svg xmlns="http://www.w3.org/2000/svg" width="${this.obj.offsetWidth}" height="${this.obj.offsetHeight}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" class="windowActive">${this.obj.innerHTML}</div></foreignObject></svg>`
+
+		}
+
+	}
+
+	close(){
+
+		document.body.removeChild(this.obj);
+		windows.splice(windows.findIndex(obj => obj === this), 1);
+
+	}
+
+	focus(){
+
+		this.obj.setAttribute('data-active', 'true');
+		this.activeState = true;
+		this.obj.className = 'windowActive';
+
 	}
 
 }

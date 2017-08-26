@@ -552,3 +552,8 @@ span, input, textarea, button{
 #fullSizeWindow:hover{
     opacity: 1;
 }
+
+#canvas{
+    position: relative;
+    z-index: 111;
+}
